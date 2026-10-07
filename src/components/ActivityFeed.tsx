@@ -25,18 +25,17 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ activities, onClearL
   const filtered = activities.filter((act) => {
     if (filter === 'all') return true;
     if (filter === 'points') return act.type === 'points_add' || act.type === 'points_deduct';
-    if (filter === 'captain') return act.type === 'captain_change' || act.type === 'captain_cleared';
+    if (filter === 'captain') return act.type === 'captain_change';
     if (filter === 'nomination') return act.type === 'nomination_add' || act.type === 'nomination_remove';
     if (filter === 'immunity') return act.type === 'immunity_grant' || act.type === 'immunity_revoke';
     if (filter === 'eviction') return act.type === 'eviction' || act.type === 'reinstated';
-    if (filter === 'tasks') return act.type === 'task_complete' || act.type === 'task_completed';
+    if (filter === 'tasks') return act.type === 'task_complete' || act.type === 'task_create' || act.type === 'task_cancel';
     return true;
   });
 
   const getIconAndStyle = (type: ActivityLog['type']) => {
     switch (type) {
       case 'captain_change':
-      case 'captain_cleared':
         return {
           icon: Crown,
           iconColor: 'text-[#0d0e10]',
@@ -56,6 +55,7 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ activities, onClearL
         };
       case 'nomination_add':
       case 'nomination_remove':
+      case 'nomination_clear_all':
         return {
           icon: AlertOctagon,
           iconColor: 'text-rose-700',
@@ -76,7 +76,9 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ activities, onClearL
           bgBadge: 'bg-[#0d0e10] text-white',
         };
       case 'task_complete':
-      case 'task_completed':
+      case 'task_create':
+      case 'task_cancel':
+      case 'task_delete':
         return {
           icon: Award,
           iconColor: 'text-amber-800',

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye, Crown, Radio, RotateCcw, Volume2, VolumeX, Menu, X, ArrowUpRight } from 'lucide-react';
+import { Eye, Crown, RotateCcw, Volume2, VolumeX, Menu, X, ArrowUpRight } from 'lucide-react';
 import type { Contestant } from '../types/bigboss';
 
 interface HeaderProps {

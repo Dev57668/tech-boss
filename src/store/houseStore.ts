@@ -856,13 +856,10 @@ export function useHouseStore() {
       return a.name.localeCompare(b.name);
     });
 
-    let currentRank = 1;
-    return sorted.map((c, index) => {
-      if (index > 0 && c.points < sorted[index - 1].points) {
-        currentRank = index + 1;
-      }
-      return { ...c, displayRank: currentRank };
-    });
+    return sorted.map((c) => ({
+      ...c,
+      displayRank: sorted.findIndex((s) => s.points === c.points) + 1,
+    }));
   }, [activeContestants]);
 
   return {

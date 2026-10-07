@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowDown, Crown, ShieldAlert, Sparkles, TrendingUp, Users, Zap } from 'lucide-react';
+import { ArrowDown, Crown, ShieldAlert, Sparkles, Zap } from 'lucide-react';
 import type { Contestant, HouseStats } from '../types/bigboss';
 
 interface HeroProps {

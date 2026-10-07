@@ -1,18 +1,27 @@
 import React from 'react';
-import { AlertOctagon, ShieldCheck, UserX, Shield } from 'lucide-react';
+import { AlertOctagon, ShieldCheck, UserX, Shield, RotateCcw } from 'lucide-react';
 import type { Contestant } from '../types/bigboss';
 
 interface DangerZoneProps {
   nominees: Contestant[];
-  onRevokeNomination: (contestantId: string) => void;
+  onRevokeNomination?: (contestantId: string) => void;
+  onRemoveNomination?: (contestantId: string) => void;
   onRequestEvict: (contestant: Contestant) => void;
+  onClearAllNominations?: () => void;
 }
 
 export const DangerZone: React.FC<DangerZoneProps> = ({
   nominees,
   onRevokeNomination,
+  onRemoveNomination,
   onRequestEvict,
+  onClearAllNominations,
 }) => {
+  const handleRevoke = (id: string) => {
+    if (onRemoveNomination) onRemoveNomination(id);
+    else if (onRevokeNomination) onRevokeNomination(id);
+  };
+
   return (
     <div id="section-danger" className="rounded-3xl border border-[#dcdcd3] bg-[#ffffff] p-5 sm:p-7 shadow-[0_4px_20px_rgba(0,0,0,0.03)] space-y-4">
       {/* Header */}
@@ -31,6 +40,17 @@ export const DangerZone: React.FC<DangerZoneProps> = ({
             <p className="text-xs text-[#75766f]">Live roster of housemates currently nominated for public eviction</p>
           </div>
         </div>
+
+        {onClearAllNominations && nominees.length > 0 && (
+          <button
+            onClick={onClearAllNominations}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#f4f4ee] hover:bg-rose-100 hover:text-rose-800 text-[#0d0e10] text-xs font-bold transition-colors"
+            title="Clear all active nominations"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Pardon All</span>
+          </button>
+        )}
       </div>
 
       {/* Nominees List or Empty State */}
@@ -74,7 +94,7 @@ export const DangerZone: React.FC<DangerZoneProps> = ({
               {/* Action buttons */}
               <div className="flex items-center gap-1.5 shrink-0">
                 <button
-                  onClick={() => onRevokeNomination(c.id)}
+                  onClick={() => handleRevoke(c.id)}
                   title={`Revoke nomination for ${c.name}`}
                   className="p-2 rounded-full bg-[#ffffff] hover:bg-[#f4f4ee] border border-[#dcdcd3] text-[#0d0e10] transition-colors text-xs"
                 >

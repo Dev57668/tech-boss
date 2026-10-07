@@ -1,55 +1,43 @@
 import React, { useState } from 'react';
-import { CheckSquare, Plus, Award, CheckCircle2, User, Clock, AlertCircle } from 'lucide-react';
-import type { Contestant, HouseTask, TaskCategory } from '../types/bigboss';
+import { CheckSquare, Plus, Award, CheckCircle2, User, Clock, AlertCircle, Trash2 } from 'lucide-react';
+import type { Contestant, HouseTask } from '../types/bigboss';
 
-interface TaskManagementProps {
+export interface TaskManagementProps {
   tasks: HouseTask[];
   activeContestants: Contestant[];
   onCompleteTask: (taskId: string) => void;
-  onAddTask?: (task: Omit<HouseTask, 'id' | 'isCompleted'>) => void;
-  onCreateTask?: (title: string, description: string, pointsReward: number, assignedToId: string | null) => void;
+  onCreateTask?: (title: string, assigneeId: string, reward?: number) => void;
+  onDeleteTask?: (taskId: string) => void;
 }
 
 export const TaskManagement: React.FC<TaskManagementProps> = ({
   tasks,
   activeContestants,
   onCompleteTask,
-  onAddTask,
   onCreateTask,
+  onDeleteTask,
 }) => {
   const [isCreating, setIsCreating] = useState(false);
   const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [pointsReward, setPointsReward] = useState('30');
-  const [assignedToId, setAssignedToId] = useState<string>('');
-  const [category, setCategory] = useState<TaskCategory>('Luxury Budget');
+  const [reward, setReward] = useState('25');
+  const [assigneeId, setAssigneeId] = useState<string>('');
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
-    const pts = parseInt(pointsReward, 10) || 25;
+    const targetAssigneeId = assigneeId || (activeContestants[0]?.id ?? '');
+    if (!targetAssigneeId) return;
 
-    if (onAddTask) {
-      const selectedContestant = activeContestants.find((c) => c.id === assignedToId);
-      onAddTask({
-        title: title.trim(),
-        description: description.trim(),
-        category,
-        points: pts,
-        assignedType: selectedContestant ? 'contestant' : 'all',
-        assignedName: selectedContestant ? selectedContestant.name : 'All Housemates',
-        assignedContestantId: selectedContestant ? selectedContestant.id : undefined,
-      });
-    } else if (onCreateTask) {
-      onCreateTask(title.trim(), description.trim(), pts, assignedToId || null);
-    }
+    const pts = parseInt(reward, 10) || 25;
+    onCreateTask?.(title.trim(), targetAssigneeId, pts);
 
     setTitle('');
-    setDescription('');
-    setPointsReward('30');
-    setAssignedToId('');
+    setReward('25');
+    setAssigneeId('');
     setIsCreating(false);
   };
+
+  const pendingCount = tasks.filter((t) => t.status === 'Pending').length;
 
   return (
     <div id="section-tasks" className="rounded-3xl border border-[#dcdcd3] bg-[#ffffff] p-5 sm:p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] space-y-4">
@@ -63,7 +51,7 @@ export const TaskManagement: React.FC<TaskManagementProps> = ({
             <h3 className="font-heading font-black text-base tracking-tight text-[#0d0e10] uppercase flex items-center gap-2">
               HOUSE TASK MANAGEMENT
               <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-[#f4f4ee] text-[#0d0e10] font-bold">
-                {tasks.filter((t) => !t.isCompleted).length} PENDING
+                {pendingCount} PENDING
               </span>
             </h3>
             <p className="text-xs text-[#75766f]">Assign official house challenges & award scores</p>
@@ -111,22 +99,23 @@ export const TaskManagement: React.FC<TaskManagementProps> = ({
                   type="number"
                   min="5"
                   max="200"
-                  value={pointsReward}
-                  onChange={(e) => setPointsReward(e.target.value)}
+                  value={reward}
+                  onChange={(e) => setReward(e.target.value)}
                   className="w-full px-3.5 py-2 rounded-full bg-[#ffffff] border border-[#dcdcd3] text-[#0d0e10] text-xs font-mono font-bold focus:outline-none focus:ring-1 focus:ring-[#0d0e10]"
                 />
               </div>
 
               <div>
                 <label className="block text-[11px] font-bold text-[#75766f] uppercase mb-1">
-                  Assignee
+                  Assignee *
                 </label>
                 <select
-                  value={assignedToId}
-                  onChange={(e) => setAssignedToId(e.target.value)}
+                  value={assigneeId}
+                  onChange={(e) => setAssigneeId(e.target.value)}
+                  required
                   className="w-full px-3 py-2 rounded-full bg-[#ffffff] border border-[#dcdcd3] text-[#0d0e10] text-xs font-medium focus:outline-none focus:ring-1 focus:ring-[#0d0e10]"
                 >
-                  <option value="">-- Open House --</option>
+                  <option value="">-- Choose Assignee --</option>
                   {activeContestants.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name} ({c.team})
@@ -135,19 +124,6 @@ export const TaskManagement: React.FC<TaskManagementProps> = ({
                 </select>
               </div>
             </div>
-          </div>
-
-          <div>
-            <label className="block text-[11px] font-bold text-[#75766f] uppercase mb-1">
-              Instructions / Description
-            </label>
-            <input
-              type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Detailed rules of the challenge..."
-              className="w-full px-3.5 py-2 rounded-full bg-[#ffffff] border border-[#dcdcd3] text-[#0d0e10] text-xs focus:outline-none focus:ring-1 focus:ring-[#0d0e10]"
-            />
           </div>
 
           <div className="flex justify-end gap-2 pt-1">
@@ -181,71 +157,88 @@ export const TaskManagement: React.FC<TaskManagementProps> = ({
         </div>
       ) : (
         <div className="space-y-3">
-          {tasks.map((task) => (
-            <div
-              key={task.id}
-              className={`rounded-2xl border p-4 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-                task.isCompleted
-                  ? 'bg-[#fcfcf9] border-[#eeeee8] opacity-75'
-                  : 'bg-[#ffffff] border-[#dcdcd3] hover:border-[#b0b0a4]'
-              }`}
-            >
-              <div className="space-y-1 min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className={`text-sm font-black ${task.isCompleted ? 'line-through text-[#75766f]' : 'text-[#0d0e10]'}`}>
-                    {task.title}
-                  </span>
+          {tasks.map((task) => {
+            const isCompleted = task.status === 'Completed';
+            const isCancelled = task.status === 'Cancelled';
 
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#d4ff3a] text-[#0d0e10]">
-                    +{task.points || task.pointsReward || 30} PTS
-                  </span>
+            return (
+              <div
+                key={task.id}
+                className={`rounded-2xl border p-4 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                  isCompleted
+                    ? 'bg-[#fcfcf9] border-[#eeeee8] opacity-75'
+                    : isCancelled
+                    ? 'bg-[#f8f8f8] border-[#eeeee8] opacity-60'
+                    : 'bg-[#ffffff] border-[#dcdcd3] hover:border-[#b0b0a4]'
+                }`}
+              >
+                <div className="space-y-1 min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className={`text-sm font-black ${isCompleted ? 'line-through text-[#75766f]' : 'text-[#0d0e10]'}`}>
+                      {task.title}
+                    </span>
 
-                  {task.isCompleted ? (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-700" />
-                      COMPLETED
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#d4ff3a] text-[#0d0e10]">
+                      +{task.reward} PTS
                     </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#f4f4ee] text-[#0d0e10]">
-                      <Clock className="w-3 h-3" />
-                      ACTIVE
+
+                    {isCompleted ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-700" />
+                        COMPLETED
+                      </span>
+                    ) : isCancelled ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-zinc-200 text-zinc-700">
+                        CANCELLED
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#f4f4ee] text-[#0d0e10]">
+                        <Clock className="w-3 h-3" />
+                        ACTIVE
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-3 text-xs text-[#75766f] font-mono pt-0.5">
+                    <span className="flex items-center gap-1">
+                      <User className="w-3 h-3" />
+                      Assignee: <strong className="text-[#0d0e10] font-bold">{task.assigneeName}</strong>
                     </span>
-                  )}
+                    {task.completedAt && (
+                      <span>• Finished {task.completedAt}</span>
+                    )}
+                  </div>
                 </div>
 
-                <p className="text-xs text-[#75766f] leading-snug">
-                  {task.description}
-                </p>
-
-                <div className="flex items-center gap-3 text-xs text-[#75766f] font-mono pt-0.5">
-                  <span className="flex items-center gap-1">
-                    <User className="w-3 h-3" />
-                    Assignee: <strong className="text-[#0d0e10] font-bold">{task.assignedName || task.assignedToName || 'House Open'}</strong>
-                  </span>
-                  {task.completedAt && (
-                    <span>• Finished {task.completedAt}</span>
+                {/* Actions */}
+                <div className="flex items-center gap-2 shrink-0 sm:self-center">
+                  {onDeleteTask && (
+                    <button
+                      onClick={() => onDeleteTask(task.id)}
+                      className="p-2 rounded-full text-[#75766f] hover:text-rose-600 hover:bg-[#fff0f0] transition-colors"
+                      title="Delete task"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   )}
+
+                  <button
+                    onClick={() => onCompleteTask(task.id)}
+                    disabled={isCompleted || isCancelled}
+                    className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 ${
+                      isCompleted || isCancelled
+                        ? 'bg-[#f4f4ee] text-[#b0b0a4] cursor-not-allowed'
+                        : 'framer-lime-btn shadow-sm'
+                    }`}
+                    title={isCompleted ? 'Points already awarded' : 'Complete and award points'}
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>{isCompleted ? 'Awarded' : 'Complete & Award'}</span>
+                  </button>
                 </div>
               </div>
-
-              {/* Complete Action Button */}
-              <div className="shrink-0 sm:self-center">
-                <button
-                  onClick={() => onCompleteTask(task.id)}
-                  disabled={task.isCompleted}
-                  className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 ${
-                    task.isCompleted
-                      ? 'bg-[#f4f4ee] text-[#b0b0a4] cursor-not-allowed'
-                      : 'framer-lime-btn shadow-sm'
-                  }`}
-                  title={task.isCompleted ? 'Points already awarded' : 'Complete and award points'}
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>{task.isCompleted ? 'Awarded' : 'Complete & Award'}</span>
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

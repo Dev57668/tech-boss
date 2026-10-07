@@ -6,11 +6,9 @@ import {
   UserX, 
   LayoutGrid, 
   ListFilter, 
-  Search,
-  Zap,
-  Lock,
-  Plus,
-  Minus
+  Search, 
+  Zap, 
+  Lock 
 } from 'lucide-react';
 import type { Contestant } from '../types/bigboss';
 import { sound } from '../utils/sound';

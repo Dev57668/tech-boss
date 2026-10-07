@@ -1,32 +1,63 @@
 import React, { useState, useEffect } from 'react';
 import { Timer, Play, Pause, RotateCcw, Bell } from 'lucide-react';
+import type { TimerPersistedState } from '../types/bigboss';
 import { sound } from '../utils/sound';
 
-interface TaskTimerProps {
+export interface TaskTimerProps {
+  timer?: TimerPersistedState;
+  onSetDuration?: (minutes: number, seconds: number) => void;
+  onStart?: () => void;
+  onPause?: () => void;
+  onReset?: () => void;
   onTimerZero?: () => void;
   onTimerExpired?: () => void;
 }
 
-export const TaskTimer: React.FC<TaskTimerProps> = ({ onTimerZero, onTimerExpired }) => {
-  const [initialSeconds, setInitialSeconds] = useState<number>(300); // 5 min default
-  const [secondsRemaining, setSecondsRemaining] = useState<number>(300);
-  const [isRunning, setIsRunning] = useState<boolean>(false);
+export const TaskTimer: React.FC<TaskTimerProps> = ({
+  timer,
+  onSetDuration,
+  onStart,
+  onPause,
+  onReset,
+  onTimerZero,
+  onTimerExpired,
+}) => {
+  // Fallback internal state if store timer is not passed
+  const [internalInitial, setInternalInitial] = useState<number>(300);
+  const [internalRemaining, setInternalRemaining] = useState<number>(300);
+  const [internalIsRunning, setInternalIsRunning] = useState<boolean>(false);
+
+  const isControlled = Boolean(timer);
+  const secondsRemaining = isControlled ? timer!.remainingSeconds : internalRemaining;
+  const isRunning = isControlled ? timer!.isRunning : internalIsRunning;
+  const isExpired = isControlled ? (timer!.isTimesUp || secondsRemaining === 0) : secondsRemaining === 0;
+  const isLastTenSeconds = isRunning && secondsRemaining <= 10 && secondsRemaining > 0;
 
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval> | null = null;
+    if (isControlled) {
+      if (isRunning && secondsRemaining <= 10 && secondsRemaining > 1) {
+        sound.play('beep');
+      }
+      if (secondsRemaining === 0 && isRunning) {
+        sound.play('alert');
+        onTimerZero?.();
+        onTimerExpired?.();
+      }
+      return;
+    }
 
-    if (isRunning && secondsRemaining > 0) {
+    let interval: ReturnType<typeof setInterval> | null = null;
+    if (internalIsRunning && internalRemaining > 0) {
       interval = setInterval(() => {
-        setSecondsRemaining((prev) => {
+        setInternalRemaining((prev) => {
           if (prev <= 1) {
-            setIsRunning(false);
+            setInternalIsRunning(false);
             sound.play('alert');
             onTimerZero?.();
             onTimerExpired?.();
             return 0;
           }
           if (prev <= 11 && prev > 1) {
-            // Last-10-seconds audio warning beep
             sound.play('beep');
           }
           return prev - 1;
@@ -37,29 +68,45 @@ export const TaskTimer: React.FC<TaskTimerProps> = ({ onTimerZero, onTimerExpire
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isRunning, secondsRemaining, onTimerZero, onTimerExpired]);
+  }, [isControlled, internalIsRunning, internalRemaining, isRunning, secondsRemaining, onTimerZero, onTimerExpired]);
 
   const handleStart = () => {
-    if (secondsRemaining === 0) {
-      setSecondsRemaining(initialSeconds);
-    }
     sound.play('click');
-    setIsRunning(true);
+    if (isControlled && onStart) {
+      onStart();
+    } else {
+      if (internalRemaining === 0) {
+        setInternalRemaining(internalInitial);
+      }
+      setInternalIsRunning(true);
+    }
   };
 
   const handlePause = () => {
     sound.play('click');
-    setIsRunning(false);
+    if (isControlled && onPause) {
+      onPause();
+    } else {
+      setInternalIsRunning(false);
+    }
   };
 
-  const handleReset = (newInitial?: number) => {
+  const handleReset = (newMins?: number) => {
     sound.play('click');
-    setIsRunning(false);
-    const secs = newInitial !== undefined ? newInitial : initialSeconds;
-    if (newInitial !== undefined) {
-      setInitialSeconds(newInitial);
+    if (isControlled) {
+      if (newMins !== undefined && onSetDuration) {
+        onSetDuration(newMins, 0);
+      } else if (onReset) {
+        onReset();
+      }
+    } else {
+      setInternalIsRunning(false);
+      const secs = newMins !== undefined ? newMins * 60 : internalInitial;
+      if (newMins !== undefined) {
+        setInternalInitial(secs);
+      }
+      setInternalRemaining(secs);
     }
-    setSecondsRemaining(secs);
   };
 
   const formatTime = (totalSecs: number) => {
@@ -67,9 +114,6 @@ export const TaskTimer: React.FC<TaskTimerProps> = ({ onTimerZero, onTimerExpire
     const secs = totalSecs % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
-
-  const isLastTenSeconds = isRunning && secondsRemaining <= 10 && secondsRemaining > 0;
-  const isExpired = secondsRemaining === 0;
 
   return (
     <div
@@ -109,19 +153,19 @@ export const TaskTimer: React.FC<TaskTimerProps> = ({ onTimerZero, onTimerExpire
           {/* Preset Buttons */}
           <div className="flex items-center gap-1">
             <button
-              onClick={() => handleReset(60)}
+              onClick={() => handleReset(1)}
               className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-[#f4f4ee] hover:bg-[#0d0e10] hover:text-white text-[#0d0e10] transition-colors"
             >
               1M
             </button>
             <button
-              onClick={() => handleReset(120)}
+              onClick={() => handleReset(2)}
               className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-[#f4f4ee] hover:bg-[#0d0e10] hover:text-white text-[#0d0e10] transition-colors"
             >
               2M
             </button>
             <button
-              onClick={() => handleReset(300)}
+              onClick={() => handleReset(5)}
               className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-[#f4f4ee] hover:bg-[#0d0e10] hover:text-white text-[#0d0e10] transition-colors"
             >
               5M
