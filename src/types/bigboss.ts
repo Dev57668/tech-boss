@@ -12,26 +12,46 @@ export interface Contestant {
   isImmune: boolean;
   isNominated: boolean;
   avatarColor: string;
-  avatarSeed?: string;
   bio?: string;
   evictedAt?: string;
+}
+
+export type TaskStatus = 'Pending' | 'Completed' | 'Cancelled';
+
+export interface HouseTask {
+  id: string;
+  title: string;
+  assigneeId: string;
+  assigneeName: string;
+  reward: number;
+  status: TaskStatus;
+  createdAt: string;
+  completedAt?: string;
+}
+
+export interface HouseAnnouncement {
+  id: string;
+  timestamp: string;
+  message: string;
 }
 
 export type ActivityType =
   | 'points_add'
   | 'points_deduct'
   | 'captain_change'
-  | 'captain_cleared'
   | 'nomination_add'
   | 'nomination_remove'
+  | 'nomination_clear_all'
   | 'immunity_grant'
   | 'immunity_revoke'
   | 'eviction'
   | 'reinstated'
-  | 'task_assigned'
-  | 'task_completed'
+  | 'task_create'
   | 'task_complete'
+  | 'task_cancel'
+  | 'task_delete'
   | 'announcement'
+  | 'timer_expire'
   | 'system';
 
 export interface ActivityLog {
@@ -45,45 +65,28 @@ export interface ActivityLog {
   details?: string;
 }
 
+export interface TimerPersistedState {
+  inputMinutes: number;
+  inputSeconds: number;
+  remainingSeconds: number;
+  totalSeconds: number;
+  isRunning: boolean;
+  endTimestamp: number | null;
+  isTimesUp: boolean;
+}
+
 export interface HouseStats {
   activeCount: number;
   highestScorer: { name: string; points: number } | null;
+  lowestScorer: { name: string; points: number } | null;
   totalPoints: number;
   nominatedCount: number;
   immuneCount: number;
   evictedCount: number;
+  tasksCompleted: number;
+  tasksPending: number;
+  currentCaptain: { name: string; points: number } | null;
 }
-
-export type TaskCategory = 'Luxury Budget' | 'Captaincy' | 'Ration' | 'Secret Mission' | 'Discipline' | 'General';
-
-export interface HouseTask {
-  id: string;
-  title: string;
-  description: string;
-  category: TaskCategory;
-  points: number;
-  pointsReward?: number;
-  assignedType: 'contestant' | 'team' | 'all';
-  assignedName: string;
-  assignedContestantId?: string;
-  assignedTeam?: TeamName;
-  assignedToId?: string | null;
-  assignedToName?: string | null;
-  isCompleted: boolean;
-  completedAt?: string;
-}
-
-export type AnnouncementSeverity = 'decree' | 'warning' | 'alert' | 'general' | 'normal' | 'urgent';
-
-export interface HouseAnnouncement {
-  id: string;
-  timestamp: string;
-  title?: string;
-  message: string;
-  severity: AnnouncementSeverity;
-}
-
-export type Announcement = HouseAnnouncement;
 
 export type ToastVariant = 'success' | 'error' | 'warning' | 'info' | 'eviction' | 'announcement';
 
@@ -94,5 +97,3 @@ export interface ToastMessage {
   message: string;
   duration?: number;
 }
-
-export type ToastNotification = ToastMessage;

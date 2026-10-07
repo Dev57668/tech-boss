@@ -35,57 +35,57 @@ export const EvictionConfirmModal: React.FC<EvictionConfirmModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-200"
       role="dialog"
       aria-modal="true"
       aria-labelledby="eviction-modal-title"
     >
-      <div className="relative w-full max-w-md rounded-2xl border border-red-600/80 bg-[#120a0d] p-6 shadow-[0_0_50px_rgba(220,38,38,0.35)] animate-in zoom-in-95 duration-150">
+      <div className="relative w-full max-w-md rounded-3xl border border-[#2b2e35] bg-[#0d0e10] text-white p-6 sm:p-7 shadow-2xl animate-in zoom-in-95 duration-150">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none"
+          className="absolute top-4 right-4 p-2 rounded-full text-[#75766f] hover:text-white hover:bg-[#1f2126] transition-colors"
           aria-label="Close eviction dialog"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Modal Header */}
-        <div className="flex items-center gap-3.5 mb-4">
-          <div className="p-3 rounded-2xl bg-red-950 border border-red-600/60 text-red-500 shadow-[0_0_20px_rgba(239,68,68,0.3)]">
-            <UserX className="w-6 h-6" />
+        <div className="flex items-center gap-3.5 mb-5">
+          <div className="w-11 h-11 rounded-full bg-rose-950/80 border border-rose-600/40 text-rose-500 flex items-center justify-center">
+            <UserX className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-[10px] font-mono font-bold tracking-widest uppercase px-2 py-0.5 rounded bg-red-950 text-red-400 border border-red-800/40">
+            <span className="text-[10px] font-mono font-bold tracking-widest uppercase px-2.5 py-0.5 rounded-full bg-rose-950 text-rose-300">
               IRREVOCABLE DECREE
             </span>
-            <h3 id="eviction-modal-title" className="font-heading text-xl font-extrabold text-white uppercase tracking-wider mt-0.5">
+            <h3 id="eviction-modal-title" className="font-heading text-lg font-black text-white uppercase tracking-tight mt-0.5">
               CONFIRM HOUSE EVICTION
             </h3>
           </div>
         </div>
 
         {/* Eviction Notice Body */}
-        <div className="rounded-xl border border-red-950/80 bg-zinc-950/70 p-4 mb-5 space-y-3">
+        <div className="rounded-2xl border border-[#23252a] bg-[#16181c] p-4 mb-5 space-y-3">
           <div className="flex items-center gap-3">
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-heading text-lg font-bold text-white shadow-md bg-gradient-to-br ${contestant.avatarColor}`}>
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center font-heading text-base font-bold text-white shadow-md bg-gradient-to-br ${contestant.avatarColor}`}>
               {contestant.name.substring(0, 2).toUpperCase()}
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-base font-bold text-white">{contestant.name}</span>
-                <span className="text-[10px] px-2 py-0.5 rounded font-mono bg-zinc-800 text-zinc-300">
+                <span className="text-base font-black text-white">{contestant.name}</span>
+                <span className="text-[10px] px-2.5 py-0.5 rounded-full font-mono bg-[#23252a] text-[#a0a299]">
                   Team {contestant.team}
                 </span>
               </div>
-              <p className="text-xs text-zinc-400 font-mono mt-0.5">
-                Current Score: <span className="text-amber-400 font-bold">{contestant.points} PTS</span>
+              <p className="text-xs text-[#a0a299] font-mono mt-0.5">
+                Current Score: <span className="text-[#d4ff3a] font-bold">{contestant.points} PTS</span>
               </p>
             </div>
           </div>
 
-          <div className="flex items-start gap-2.5 pt-2 border-t border-zinc-900 text-xs text-red-300/90 leading-relaxed">
-            <AlertOctagon className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+          <div className="flex items-start gap-2.5 pt-2 border-t border-[#23252a] text-xs text-rose-300 leading-relaxed">
+            <AlertOctagon className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
             <p>
               Evict <strong className="text-white font-bold">{contestant.name}</strong>? This cannot be undone.
               They will be permanently removed from the live leaderboard and captaincy eligibility.
@@ -98,7 +98,7 @@ export const EvictionConfirmModal: React.FC<EvictionConfirmModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2.5 rounded-xl bg-zinc-800/90 hover:bg-zinc-700 text-xs font-bold text-zinc-300 transition-colors focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:outline-none"
+            className="px-5 py-2.5 rounded-full bg-[#1c1f24] hover:bg-[#282b32] text-xs font-bold text-[#e0e2d8] transition-colors"
           >
             Cancel
           </button>
@@ -106,7 +106,7 @@ export const EvictionConfirmModal: React.FC<EvictionConfirmModalProps> = ({
             type="button"
             onClick={handleConfirm}
             autoFocus
-            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white text-xs font-black tracking-wider uppercase transition-all shadow-[0_0_20px_rgba(220,38,38,0.5)] active:scale-95 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none"
+            className="px-6 py-2.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-black tracking-wider uppercase transition-all shadow-md active:scale-95"
           >
             Evict Contestant
           </button>

@@ -25,101 +25,94 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ activities, onClearL
   const filtered = activities.filter((act) => {
     if (filter === 'all') return true;
     if (filter === 'points') return act.type === 'points_add' || act.type === 'points_deduct';
-    if (filter === 'captain') return act.type === 'captain_change';
+    if (filter === 'captain') return act.type === 'captain_change' || act.type === 'captain_cleared';
     if (filter === 'nomination') return act.type === 'nomination_add' || act.type === 'nomination_remove';
     if (filter === 'immunity') return act.type === 'immunity_grant' || act.type === 'immunity_revoke';
     if (filter === 'eviction') return act.type === 'eviction' || act.type === 'reinstated';
-    if (filter === 'tasks') return act.type === 'task_complete';
+    if (filter === 'tasks') return act.type === 'task_complete' || act.type === 'task_completed';
     return true;
   });
 
   const getIconAndStyle = (type: ActivityLog['type']) => {
     switch (type) {
       case 'captain_change':
+      case 'captain_cleared':
         return {
           icon: Crown,
-          iconColor: 'text-amber-400 fill-amber-400',
-          bgBadge: 'bg-amber-950/40 border-amber-500/40',
-          textClass: 'text-amber-300',
+          iconColor: 'text-[#0d0e10]',
+          bgBadge: 'bg-[#d4ff3a] text-[#0d0e10]',
         };
       case 'points_add':
         return {
           icon: PlusCircle,
-          iconColor: 'text-emerald-400',
-          bgBadge: 'bg-emerald-950/40 border-emerald-500/40',
-          textClass: 'text-emerald-300',
+          iconColor: 'text-emerald-700',
+          bgBadge: 'bg-emerald-100 text-emerald-800',
         };
       case 'points_deduct':
         return {
           icon: MinusCircle,
-          iconColor: 'text-rose-400',
-          bgBadge: 'bg-rose-950/40 border-rose-500/40',
-          textClass: 'text-rose-300',
+          iconColor: 'text-rose-700',
+          bgBadge: 'bg-rose-100 text-rose-800',
         };
       case 'nomination_add':
       case 'nomination_remove':
         return {
           icon: AlertOctagon,
-          iconColor: 'text-rose-400',
-          bgBadge: 'bg-rose-950/40 border-rose-500/40',
-          textClass: 'text-rose-300',
+          iconColor: 'text-rose-700',
+          bgBadge: 'bg-rose-100 text-rose-800',
         };
       case 'immunity_grant':
       case 'immunity_revoke':
         return {
           icon: ShieldCheck,
-          iconColor: 'text-cyan-400',
-          bgBadge: 'bg-cyan-950/40 border-cyan-500/40',
-          textClass: 'text-cyan-300',
+          iconColor: 'text-emerald-700',
+          bgBadge: 'bg-emerald-100 text-emerald-800',
         };
       case 'eviction':
       case 'reinstated':
         return {
           icon: UserX,
-          iconColor: 'text-red-500',
-          bgBadge: 'bg-red-950/60 border-red-600/50',
-          textClass: 'text-red-300',
+          iconColor: 'text-white',
+          bgBadge: 'bg-[#0d0e10] text-white',
         };
       case 'task_complete':
+      case 'task_completed':
         return {
           icon: Award,
-          iconColor: 'text-yellow-400',
-          bgBadge: 'bg-yellow-950/40 border-yellow-500/40',
-          textClass: 'text-yellow-300',
+          iconColor: 'text-amber-800',
+          bgBadge: 'bg-amber-100 text-amber-900',
         };
       case 'announcement':
         return {
           icon: Megaphone,
-          iconColor: 'text-amber-400',
-          bgBadge: 'bg-amber-950/40 border-amber-500/40',
-          textClass: 'text-amber-300',
+          iconColor: 'text-[#0d0e10]',
+          bgBadge: 'bg-[#d4ff3a] text-[#0d0e10]',
         };
       default:
         return {
           icon: Activity,
-          iconColor: 'text-zinc-400',
-          bgBadge: 'bg-zinc-800 border-zinc-700',
-          textClass: 'text-zinc-300',
+          iconColor: 'text-[#75766f]',
+          bgBadge: 'bg-[#f4f4ee] text-[#0d0e10]',
         };
     }
   };
 
   return (
-    <div className="rounded-2xl border border-zinc-800/90 bg-zinc-900/70 p-4 sm:p-5 backdrop-blur-xl shadow-xl flex flex-col h-full">
+    <div className="rounded-3xl border border-[#dcdcd3] bg-[#ffffff] p-5 sm:p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between pb-3 mb-3 border-b border-zinc-800">
+      <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#eeeee8]">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-red-950/60 border border-red-700/50 text-red-400">
+          <div className="w-9 h-9 rounded-full bg-[#0d0e10] text-[#d4ff3a] flex items-center justify-center">
             <Radio className="w-4 h-4 animate-pulse" />
           </div>
           <div>
-            <h3 className="font-heading font-black text-base uppercase tracking-wider text-white flex items-center gap-2">
+            <h3 className="font-heading font-black text-base uppercase tracking-tight text-[#0d0e10] flex items-center gap-2">
               LIVE ACTIVITY LOG
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 font-normal">
+              <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-[#f4f4ee] text-[#0d0e10] font-bold">
                 {activities.length}/100 MAX
               </span>
             </h3>
-            <p className="text-[11px] text-zinc-400">Chronological telemetry feed of house decrees</p>
+            <p className="text-xs text-[#75766f]">Chronological telemetry feed of house events</p>
           </div>
         </div>
 
@@ -127,7 +120,7 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ activities, onClearL
           <button
             onClick={onClearLogs}
             title="Clear all logs"
-            className="p-1.5 rounded-lg text-zinc-500 hover:text-rose-400 hover:bg-zinc-800 transition-colors focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+            className="p-2 rounded-full text-[#75766f] hover:text-rose-600 hover:bg-[#f4f4ee] transition-colors"
           >
             <Trash2 className="w-4 h-4" />
           </button>
@@ -135,7 +128,7 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ activities, onClearL
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center gap-1 overflow-x-auto pb-2 mb-2 text-xs">
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-2 text-xs">
         {[
           { key: 'all', label: 'All' },
           { key: 'points', label: 'Points' },
@@ -148,11 +141,11 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ activities, onClearL
           <button
             key={f.key}
             onClick={() => setFilter(f.key as typeof filter)}
-            className={`px-2.5 py-1 rounded-lg font-medium whitespace-nowrap transition-all ${
+            className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
               filter === f.key
-                ? 'bg-zinc-800 text-white font-bold border border-zinc-700 shadow-sm'
-                : 'text-zinc-500 hover:text-zinc-300'
-            } focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:outline-none`}
+                ? 'bg-[#0d0e10] text-white shadow-sm'
+                : 'bg-[#f4f4ee] text-[#75766f] hover:text-[#0d0e10]'
+            }`}
           >
             {f.label}
           </button>
@@ -160,42 +153,42 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ activities, onClearL
       </div>
 
       {/* Activity List or Empty State */}
-      <div className="space-y-2 overflow-y-auto pr-1 flex-1 max-h-[500px]">
+      <div className="space-y-2.5 overflow-y-auto pr-1 flex-1 max-h-[500px]">
         {filtered.length === 0 ? (
-          <div className="py-12 px-4 rounded-xl border border-dashed border-zinc-800 text-center flex flex-col items-center justify-center">
-            <Activity className="w-6 h-6 text-zinc-600 mb-2" />
-            <h4 className="text-xs font-bold text-zinc-400">No Activity Events Recorded</h4>
-            <p className="text-[11px] text-zinc-600 mt-0.5">Actions performed in the house will stream here.</p>
+          <div className="py-12 px-4 rounded-2xl border border-dashed border-[#dcdcd3] bg-[#f8f8f4] text-center flex flex-col items-center justify-center">
+            <Activity className="w-6 h-6 text-[#75766f] mb-2" />
+            <h4 className="text-xs font-bold text-[#0d0e10]">No Activity Events Recorded</h4>
+            <p className="text-xs text-[#75766f] mt-0.5">House actions and decrees will stream here.</p>
           </div>
         ) : (
           filtered.map((act) => {
-            const { icon: Icon, iconColor, bgBadge } = getIconAndStyle(act.type);
+            const { icon: Icon, bgBadge } = getIconAndStyle(act.type);
 
             return (
               <div
                 key={act.id}
-                className="rounded-xl border border-zinc-800/70 bg-zinc-950/60 p-3 hover:border-zinc-700/80 transition-all flex items-start gap-3 group"
+                className="rounded-2xl border border-[#eeeee8] bg-[#fbfbf8] p-3.5 hover:border-[#dcdcd3] transition-all flex items-start gap-3 group"
               >
-                <div className={`p-2 rounded-lg border shrink-0 mt-0.5 ${bgBadge}`}>
-                  <Icon className={`w-3.5 h-3.5 ${iconColor}`} />
+                <div className={`p-2 rounded-full shrink-0 mt-0.5 ${bgBadge}`}>
+                  <Icon className="w-3.5 h-3.5" />
                 </div>
 
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-bold text-xs text-white truncate">
+                    <span className="font-extrabold text-xs text-[#0d0e10] truncate">
                       {act.contestantName}
                     </span>
-                    <span className="font-mono text-[10px] text-zinc-500 shrink-0">
+                    <span className="font-mono text-[10px] text-[#75766f] shrink-0">
                       {act.timestamp}
                     </span>
                   </div>
 
-                  <p className="text-xs text-zinc-300 mt-0.5 leading-snug">
+                  <p className="text-xs text-[#0d0e10] mt-0.5 leading-snug">
                     {act.message}
                   </p>
 
                   {act.details && (
-                    <div className="text-[10px] text-zinc-500 font-mono mt-1">
+                    <div className="text-[10px] text-[#75766f] font-mono mt-1">
                       {act.details}
                     </div>
                   )}

@@ -10,29 +10,29 @@ export const EvictedPanel: React.FC<EvictedPanelProps> = ({ evictedContestants }
   return (
     <section 
       aria-label="Evicted Housemates Dossier"
-      className="rounded-2xl border border-zinc-800/90 bg-[#0a0a0d]/90 p-5 backdrop-blur-xl shadow-xl"
+      className="rounded-3xl border border-[#dcdcd3] bg-[#ffffff] p-5 sm:p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)]"
     >
       {/* Header */}
-      <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-zinc-800/80">
+      <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-[#eeeee8]">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-zinc-800/80 border border-zinc-700/60 text-zinc-400">
-            <UserX className="w-4 h-4 text-red-500" />
+          <div className="w-9 h-9 rounded-full bg-[#0d0e10] text-rose-500 flex items-center justify-center">
+            <UserX className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="font-heading font-black text-base tracking-wide text-white uppercase flex items-center gap-2">
+            <h3 className="font-heading font-black text-base tracking-tight text-[#0d0e10] uppercase flex items-center gap-2">
               EVICTED CONTESTANTS
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-red-950/80 text-red-400 border border-red-800/40">
+              <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 font-bold">
                 OUTSIDE HOUSE • {evictedContestants.length}
               </span>
             </h3>
-            <p className="text-[11px] text-zinc-400">
+            <p className="text-xs text-[#75766f]">
               Contestants eliminated from the house. All active privileges and actions permanently disabled.
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 text-xs font-mono text-zinc-500">
-          <ShieldAlert className="w-3.5 h-3.5 text-red-500" />
+        <div className="flex items-center gap-1.5 text-xs font-mono text-[#75766f]">
+          <ShieldAlert className="w-3.5 h-3.5 text-rose-600" />
           <span>DOOR LOCKED</span>
         </div>
       </div>
@@ -40,50 +40,50 @@ export const EvictedPanel: React.FC<EvictedPanelProps> = ({ evictedContestants }
       {/* Content */}
       {evictedContestants.length === 0 ? (
         /* Empty State */
-        <div className="py-8 px-4 rounded-xl border border-dashed border-zinc-800/80 bg-zinc-950/40 text-center flex flex-col items-center justify-center">
-          <div className="p-3 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-500 mb-2">
-            <Users className="w-5 h-5 text-emerald-500/70" />
+        <div className="py-8 px-4 rounded-2xl border border-dashed border-[#dcdcd3] bg-[#f8f8f4] text-center flex flex-col items-center justify-center">
+          <div className="p-3 rounded-full bg-[#eeeee8] text-[#75766f] mb-2">
+            <Users className="w-5 h-5 text-emerald-600" />
           </div>
-          <h4 className="text-sm font-bold text-zinc-300">No Contestants Evicted Yet</h4>
-          <p className="text-xs text-zinc-500 max-w-sm mt-1">
+          <h4 className="text-sm font-bold text-[#0d0e10]">No Contestants Evicted Yet</h4>
+          <p className="text-xs text-[#75766f] max-w-sm mt-1">
             The house is currently operating at full strength. Evicted contestants will be archived here.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
           {evictedContestants.map((c) => (
             <div
               key={c.id}
-              className="relative overflow-hidden rounded-xl border border-zinc-800/80 bg-zinc-950/80 p-3.5 opacity-75 hover:opacity-90 transition-opacity grayscale hover:grayscale-0 group"
+              className="relative overflow-hidden rounded-2xl border border-[#dcdcd3] bg-[#f8f8f4] p-4 opacity-80 hover:opacity-100 transition-opacity group"
             >
               {/* Corner Watermark */}
-              <div className="absolute top-2 right-2">
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-950/90 border border-red-700/60 text-red-400 font-mono font-black text-[9px] uppercase tracking-wider shadow-sm">
+              <div className="absolute top-3 right-3">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#0d0e10] text-white font-mono font-black text-[9px] uppercase tracking-wider shadow-sm">
                   <UserX className="w-2.5 h-2.5" />
                   EVICTED
                 </span>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-zinc-800 text-zinc-400 flex items-center justify-center font-heading text-base font-bold shadow-inner shrink-0">
+                <div className="w-11 h-11 rounded-full bg-[#dcdcd3] text-[#75766f] flex items-center justify-center font-heading text-base font-bold shadow-inner shrink-0">
                   {c.name.substring(0, 2).toUpperCase()}
                 </div>
 
                 <div className="min-w-0 pr-16">
-                  <h4 className="font-bold text-sm text-zinc-300 line-through truncate">
+                  <h4 className="font-bold text-sm text-[#75766f] line-through truncate">
                     {c.name}
                   </h4>
-                  <div className="flex items-center gap-2 text-[11px] text-zinc-500 mt-0.5 font-mono">
+                  <div className="flex items-center gap-2 text-xs text-[#75766f] mt-0.5 font-mono">
                     <span>Team {c.team}</span>
                     <span>•</span>
-                    <span className="text-amber-400/80 font-bold">{c.points} PTS</span>
+                    <span className="text-[#0d0e10] font-bold">{c.points} PTS</span>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-3 pt-2.5 border-t border-zinc-900/90 flex items-center justify-between text-[10px] text-zinc-500 font-mono">
-                <span>Final House Points: {c.points}</span>
-                <span className="text-red-500/80">Journey Concluded</span>
+              <div className="mt-3 pt-2.5 border-t border-[#e8e8df] flex items-center justify-between text-[11px] text-[#75766f] font-mono">
+                <span>Final Score: {c.points} PTS</span>
+                <span className="text-rose-600 font-semibold">Eliminated</span>
               </div>
             </div>
           ))}

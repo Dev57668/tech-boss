@@ -1,19 +1,13 @@
-import React, { useState, useRef } from 'react';
-import { 
-  CheckCircle2, 
-  Award, 
-  Plus, 
-  Users, 
-  CheckCheck
-} from 'lucide-react';
-import type { HouseTask, Contestant, TeamName } from '../types/bigboss';
-import { sound } from '../utils/sound';
+import React, { useState } from 'react';
+import { CheckSquare, Plus, Award, CheckCircle2, User, Clock, AlertCircle } from 'lucide-react';
+import type { Contestant, HouseTask, TaskCategory } from '../types/bigboss';
 
 interface TaskManagementProps {
   tasks: HouseTask[];
   activeContestants: Contestant[];
   onCompleteTask: (taskId: string) => void;
-  onAddTask: (task: Omit<HouseTask, 'id' | 'isCompleted'>) => void;
+  onAddTask?: (task: Omit<HouseTask, 'id' | 'isCompleted'>) => void;
+  onCreateTask?: (title: string, description: string, pointsReward: number, assignedToId: string | null) => void;
 }
 
 export const TaskManagement: React.FC<TaskManagementProps> = ({
@@ -21,324 +15,234 @@ export const TaskManagement: React.FC<TaskManagementProps> = ({
   activeContestants,
   onCompleteTask,
   onAddTask,
+  onCreateTask,
 }) => {
-  const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all');
-  const [isAdding, setIsAdding] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [pointsReward, setPointsReward] = useState('30');
+  const [assignedToId, setAssignedToId] = useState<string>('');
+  const [category, setCategory] = useState<TaskCategory>('Luxury Budget');
 
-  // Guard against double clicks
-  const completingRef = useRef<Set<string>>(new Set());
-
-  // New task form state
-  const [newTitle, setNewTitle] = useState('');
-  const [newDescription, setNewDescription] = useState('');
-  const [newCategory, setNewCategory] = useState<HouseTask['category']>('Luxury Budget');
-  const [newPoints, setNewPoints] = useState<number>(30);
-  const [newAssigneeType, setNewAssigneeType] = useState<'contestant' | 'team'>('team');
-  const [selectedContestantId, setSelectedContestantId] = useState<string>(activeContestants[0]?.id || '');
-  const [selectedTeam, setSelectedTeam] = useState<TeamName>('Tigers');
-
-  const filteredTasks = tasks.filter((t) => {
-    if (filter === 'pending') return !t.isCompleted;
-    if (filter === 'completed') return t.isCompleted;
-    return true;
-  });
-
-  const handleMarkComplete = (taskId: string) => {
-    // Edge case check: Double-click lockout
-    if (completingRef.current.has(taskId)) {
-      return;
-    }
-    const targetTask = tasks.find((t) => t.id === taskId);
-    if (!targetTask || targetTask.isCompleted) {
-      return;
-    }
-
-    completingRef.current.add(taskId);
-    sound.play('crown');
-    onCompleteTask(taskId);
-
-    // Release after debounce window
-    setTimeout(() => {
-      completingRef.current.delete(taskId);
-    }, 1000);
-  };
-
-  const handleCreateTask = (e: React.FormEvent) => {
+  const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newTitle.trim()) return;
+    if (!title.trim()) return;
+    const pts = parseInt(pointsReward, 10) || 25;
 
-    let assigneeName = '';
-    let assignedContestantId: string | undefined = undefined;
-    let assignedTeam: TeamName | undefined = undefined;
-
-    if (newAssigneeType === 'contestant') {
-      const contestant = activeContestants.find((c) => c.id === selectedContestantId);
-      assigneeName = contestant ? contestant.name : 'Contestant';
-      assignedContestantId = selectedContestantId;
-    } else {
-      assigneeName = `Team ${selectedTeam}`;
-      assignedTeam = selectedTeam;
+    if (onAddTask) {
+      const selectedContestant = activeContestants.find((c) => c.id === assignedToId);
+      onAddTask({
+        title: title.trim(),
+        description: description.trim(),
+        category,
+        points: pts,
+        assignedType: selectedContestant ? 'contestant' : 'all',
+        assignedName: selectedContestant ? selectedContestant.name : 'All Housemates',
+        assignedContestantId: selectedContestant ? selectedContestant.id : undefined,
+      });
+    } else if (onCreateTask) {
+      onCreateTask(title.trim(), description.trim(), pts, assignedToId || null);
     }
 
-    onAddTask({
-      title: newTitle.trim(),
-      description: newDescription.trim() || 'Official Big Boss House Challenge',
-      category: newCategory,
-      points: Math.max(5, Math.min(200, Number(newPoints) || 20)),
-      assignedType: newAssigneeType,
-      assignedName: assigneeName,
-      assignedContestantId,
-      assignedTeam,
-    });
-
-    setNewTitle('');
-    setNewDescription('');
-    setIsAdding(false);
-  };
-
-  const getCategoryBadge = (category: HouseTask['category']) => {
-    switch (category) {
-      case 'Luxury Budget':
-        return 'bg-amber-950/60 border-amber-500/40 text-amber-300';
-      case 'Captaincy':
-        return 'bg-yellow-950/60 border-yellow-500/40 text-yellow-300';
-      case 'Secret Mission':
-        return 'bg-purple-950/60 border-purple-500/40 text-purple-300';
-      case 'Ration':
-        return 'bg-rose-950/60 border-rose-500/40 text-rose-300';
-      case 'Discipline':
-        return 'bg-blue-950/60 border-blue-500/40 text-blue-300';
-      default:
-        return 'bg-zinc-800 text-zinc-300 border-zinc-700';
-    }
+    setTitle('');
+    setDescription('');
+    setPointsReward('30');
+    setAssignedToId('');
+    setIsCreating(false);
   };
 
   return (
-    <div className="rounded-2xl border border-zinc-800/90 bg-zinc-900/70 p-5 backdrop-blur-xl shadow-xl space-y-4">
+    <div id="section-tasks" className="rounded-3xl border border-[#dcdcd3] bg-[#ffffff] p-5 sm:p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] space-y-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-800">
+      <div className="flex items-center justify-between pb-3 border-b border-[#eeeee8]">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-red-950/60 border border-red-700/50 text-red-400">
-            <Award className="w-4 h-4" />
+          <div className="w-9 h-9 rounded-full bg-[#0d0e10] text-[#d4ff3a] flex items-center justify-center">
+            <CheckSquare className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="font-heading font-black text-base uppercase tracking-wider text-white flex items-center gap-2">
-              TASK MANAGEMENT
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 font-normal">
-                {tasks.filter((t) => !t.isCompleted).length} ACTIVE
+            <h3 className="font-heading font-black text-base tracking-tight text-[#0d0e10] uppercase flex items-center gap-2">
+              HOUSE TASK MANAGEMENT
+              <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-[#f4f4ee] text-[#0d0e10] font-bold">
+                {tasks.filter((t) => !t.isCompleted).length} PENDING
               </span>
             </h3>
-            <p className="text-[11px] text-zinc-400">Execute house challenges, allocate reward points</p>
+            <p className="text-xs text-[#75766f]">Assign official house challenges & award scores</p>
           </div>
         </div>
 
-        {/* Filter Pills and Add Button */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center p-0.5 rounded-xl bg-zinc-800/90 border border-zinc-700/80 text-xs">
-            <button
-              onClick={() => setFilter('all')}
-              className={`px-2.5 py-1 rounded-lg font-semibold transition-all ${
-                filter === 'all' ? 'bg-zinc-700 text-white shadow' : 'text-zinc-400 hover:text-white'
-              }`}
-            >
-              All ({tasks.length})
-            </button>
-            <button
-              onClick={() => setFilter('pending')}
-              className={`px-2.5 py-1 rounded-lg font-semibold transition-all ${
-                filter === 'pending' ? 'bg-amber-600 text-white shadow' : 'text-zinc-400 hover:text-white'
-              }`}
-            >
-              Pending ({tasks.filter((t) => !t.isCompleted).length})
-            </button>
-            <button
-              onClick={() => setFilter('completed')}
-              className={`px-2.5 py-1 rounded-lg font-semibold transition-all ${
-                filter === 'completed' ? 'bg-emerald-600 text-white shadow' : 'text-zinc-400 hover:text-white'
-              }`}
-            >
-              Done ({tasks.filter((t) => t.isCompleted).length})
-            </button>
-          </div>
-
-          <button
-            onClick={() => setIsAdding(!isAdding)}
-            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold transition-all shadow-[0_0_12px_rgba(239,68,68,0.3)] active:scale-95 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>{isAdding ? 'Close' : 'New Task'}</span>
-          </button>
-        </div>
+        <button
+          onClick={() => setIsCreating(!isCreating)}
+          className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#0d0e10] hover:bg-[#202227] text-white text-xs font-bold transition-all shadow-sm active:scale-95"
+        >
+          <Plus className="w-3.5 h-3.5" />
+          <span>{isCreating ? 'Cancel' : 'Create Task'}</span>
+        </button>
       </div>
 
-      {/* New Task Inline Form */}
-      {isAdding && (
-        <form onSubmit={handleCreateTask} className="p-4 rounded-xl border border-red-900/60 bg-zinc-950/90 space-y-3 animate-in fade-in duration-150">
-          <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
-            <span className="font-heading font-bold text-xs uppercase tracking-wider text-red-400">
-              CREATE OFFICIAL HOUSE CHALLENGE
-            </span>
+      {/* Task Creation Form */}
+      {isCreating && (
+        <form onSubmit={handleFormSubmit} className="p-4 sm:p-5 rounded-2xl bg-[#f8f8f4] border border-[#dcdcd3] space-y-3 animate-in fade-in duration-150">
+          <div className="text-xs font-bold uppercase text-[#0d0e10] tracking-wider flex items-center gap-1.5">
+            <Award className="w-4 h-4 text-[#a1c914]" />
+            Issue New House Challenge
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1">Task Title</label>
+              <label className="block text-[11px] font-bold text-[#75766f] uppercase mb-1">
+                Task Title *
+              </label>
               <input
                 type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g. Captaincy Obstacle Challenge"
                 required
-                value={newTitle}
-                onChange={(e) => setNewTitle(e.target.value)}
-                placeholder="e.g. Luxury Budget: Water Relay"
-                className="w-full px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700 text-xs text-white focus:outline-none focus:border-red-500"
+                className="w-full px-3.5 py-2 rounded-full bg-[#ffffff] border border-[#dcdcd3] text-[#0d0e10] text-xs focus:outline-none focus:ring-1 focus:ring-[#0d0e10]"
               />
             </div>
 
-            <div>
-              <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1">Category</label>
-              <select
-                value={newCategory}
-                onChange={(e) => setNewCategory(e.target.value as HouseTask['category'])}
-                className="w-full px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700 text-xs text-white focus:outline-none focus:border-red-500"
-              >
-                <option value="Luxury Budget">Luxury Budget</option>
-                <option value="Captaincy">Captaincy</option>
-                <option value="Ration">Ration</option>
-                <option value="Secret Mission">Secret Mission</option>
-                <option value="Discipline">Discipline</option>
-              </select>
-            </div>
-          </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-[11px] font-bold text-[#75766f] uppercase mb-1">
+                  Points Reward
+                </label>
+                <input
+                  type="number"
+                  min="5"
+                  max="200"
+                  value={pointsReward}
+                  onChange={(e) => setPointsReward(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-full bg-[#ffffff] border border-[#dcdcd3] text-[#0d0e10] text-xs font-mono font-bold focus:outline-none focus:ring-1 focus:ring-[#0d0e10]"
+                />
+              </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div>
-              <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1">Reward Points</label>
-              <input
-                type="number"
-                min="5"
-                max="200"
-                value={newPoints}
-                onChange={(e) => setNewPoints(Number(e.target.value))}
-                className="w-full px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700 text-xs text-white font-mono focus:outline-none focus:border-red-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1">Assign To</label>
-              <select
-                value={newAssigneeType}
-                onChange={(e) => setNewAssigneeType(e.target.value as 'contestant' | 'team')}
-                className="w-full px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700 text-xs text-white focus:outline-none focus:border-red-500"
-              >
-                <option value="team">Whole Team</option>
-                <option value="contestant">Single Contestant</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1">Select Target</label>
-              {newAssigneeType === 'team' ? (
+              <div>
+                <label className="block text-[11px] font-bold text-[#75766f] uppercase mb-1">
+                  Assignee
+                </label>
                 <select
-                  value={selectedTeam}
-                  onChange={(e) => setSelectedTeam(e.target.value as TeamName)}
-                  className="w-full px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700 text-xs text-white focus:outline-none focus:border-red-500"
+                  value={assignedToId}
+                  onChange={(e) => setAssignedToId(e.target.value)}
+                  className="w-full px-3 py-2 rounded-full bg-[#ffffff] border border-[#dcdcd3] text-[#0d0e10] text-xs font-medium focus:outline-none focus:ring-1 focus:ring-[#0d0e10]"
                 >
-                  <option value="Tigers">Team Tigers</option>
-                  <option value="Wolves">Team Wolves</option>
-                </select>
-              ) : (
-                <select
-                  value={selectedContestantId}
-                  onChange={(e) => setSelectedContestantId(e.target.value)}
-                  className="w-full px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700 text-xs text-white focus:outline-none focus:border-red-500"
-                >
+                  <option value="">-- Open House --</option>
                   {activeContestants.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name} ({c.team})
                     </option>
                   ))}
                 </select>
-              )}
+              </div>
             </div>
+          </div>
+
+          <div>
+            <label className="block text-[11px] font-bold text-[#75766f] uppercase mb-1">
+              Instructions / Description
+            </label>
+            <input
+              type="text"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Detailed rules of the challenge..."
+              className="w-full px-3.5 py-2 rounded-full bg-[#ffffff] border border-[#dcdcd3] text-[#0d0e10] text-xs focus:outline-none focus:ring-1 focus:ring-[#0d0e10]"
+            />
           </div>
 
           <div className="flex justify-end gap-2 pt-1">
             <button
               type="button"
-              onClick={() => setIsAdding(false)}
-              className="px-3 py-1.5 rounded-lg bg-zinc-800 text-xs text-zinc-400 hover:text-white"
+              onClick={() => setIsCreating(false)}
+              className="px-4 py-2 rounded-full bg-[#ffffff] border border-[#dcdcd3] text-[#75766f] text-xs font-bold hover:text-[#0d0e10]"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-xs font-bold text-white shadow"
+              className="framer-lime-btn px-5 py-2 text-xs font-black uppercase tracking-wider"
             >
-              Broadcast Task
+              Publish Challenge
             </button>
           </div>
         </form>
       )}
 
       {/* Task List or Empty State */}
-      {filteredTasks.length === 0 ? (
-        <div className="py-8 px-4 rounded-xl border border-dashed border-zinc-800 bg-zinc-950/40 text-center flex flex-col items-center justify-center">
-          <div className="p-3 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-500 mb-2">
-            <CheckCheck className="w-5 h-5 text-zinc-500" />
-          </div>
-          <h4 className="text-sm font-bold text-zinc-300">No Tasks in Queue</h4>
-          <p className="text-xs text-zinc-500 max-w-sm mt-1">
-            All house challenges under this filter are cleared or have not yet been assigned by Big Boss.
+      {tasks.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-8 px-4 text-center rounded-2xl bg-[#f4f4ee] border border-dashed border-[#dcdcd3]">
+          <AlertCircle className="w-8 h-8 text-[#75766f] mb-2" />
+          <p className="text-xs font-bold text-[#0d0e10] uppercase tracking-wider">
+            No Tasks Active
+          </p>
+          <p className="text-xs text-[#75766f] mt-0.5">
+            Click &quot;Create Task&quot; above to issue a new challenge.
           </p>
         </div>
       ) : (
-        <div className="space-y-2.5">
-          {filteredTasks.map((task) => (
+        <div className="space-y-3">
+          {tasks.map((task) => (
             <div
               key={task.id}
-              className={`rounded-xl border p-3.5 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+              className={`rounded-2xl border p-4 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                 task.isCompleted
-                  ? 'bg-zinc-950/50 border-zinc-800/60 opacity-70'
-                  : 'bg-zinc-900/60 border-zinc-800 hover:border-zinc-700'
+                  ? 'bg-[#fcfcf9] border-[#eeeee8] opacity-75'
+                  : 'bg-[#ffffff] border-[#dcdcd3] hover:border-[#b0b0a4]'
               }`}
             >
-              {/* Task Left */}
-              <div className="min-w-0 space-y-1">
+              <div className="space-y-1 min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${getCategoryBadge(task.category)}`}>
-                    {task.category}
-                  </span>
-                  <h4 className={`text-sm font-bold truncate ${task.isCompleted ? 'line-through text-zinc-400' : 'text-white'}`}>
+                  <span className={`text-sm font-black ${task.isCompleted ? 'line-through text-[#75766f]' : 'text-[#0d0e10]'}`}>
                     {task.title}
-                  </h4>
-                </div>
-                <p className="text-xs text-zinc-400 line-clamp-1">{task.description}</p>
-                <div className="flex items-center gap-2.5 text-[11px] font-mono text-zinc-500 pt-0.5">
-                  <span className="flex items-center gap-1 text-zinc-400">
-                    <Users className="w-3 h-3 text-zinc-500" />
-                    Target: <strong className="text-zinc-200">{task.assignedName}</strong>
                   </span>
-                  <span>•</span>
-                  <span className="text-amber-400 font-bold">+{task.points} PTS</span>
+
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#d4ff3a] text-[#0d0e10]">
+                    +{task.points || task.pointsReward || 30} PTS
+                  </span>
+
+                  {task.isCompleted ? (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-700" />
+                      COMPLETED
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#f4f4ee] text-[#0d0e10]">
+                      <Clock className="w-3 h-3" />
+                      ACTIVE
+                    </span>
+                  )}
+                </div>
+
+                <p className="text-xs text-[#75766f] leading-snug">
+                  {task.description}
+                </p>
+
+                <div className="flex items-center gap-3 text-xs text-[#75766f] font-mono pt-0.5">
+                  <span className="flex items-center gap-1">
+                    <User className="w-3 h-3" />
+                    Assignee: <strong className="text-[#0d0e10] font-bold">{task.assignedName || task.assignedToName || 'House Open'}</strong>
+                  </span>
+                  {task.completedAt && (
+                    <span>• Finished {task.completedAt}</span>
+                  )}
                 </div>
               </div>
 
-              {/* Task Right Action */}
-              <div className="shrink-0 flex items-center justify-end">
-                {task.isCompleted ? (
-                  <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-950/50 border border-emerald-600/40 text-emerald-400 text-xs font-bold">
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    Completed
-                  </span>
-                ) : (
-                  <button
-                    onClick={() => handleMarkComplete(task.id)}
-                    title="Award task reward points and mark completed"
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-[0_0_12px_rgba(16,185,129,0.3)] active:scale-95 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none"
-                  >
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>Mark Complete (+{task.points})</span>
-                  </button>
-                )}
+              {/* Complete Action Button */}
+              <div className="shrink-0 sm:self-center">
+                <button
+                  onClick={() => onCompleteTask(task.id)}
+                  disabled={task.isCompleted}
+                  className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 ${
+                    task.isCompleted
+                      ? 'bg-[#f4f4ee] text-[#b0b0a4] cursor-not-allowed'
+                      : 'framer-lime-btn shadow-sm'
+                  }`}
+                  title={task.isCompleted ? 'Points already awarded' : 'Complete and award points'}
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>{task.isCompleted ? 'Awarded' : 'Complete & Award'}</span>
+                </button>
               </div>
             </div>
           ))}

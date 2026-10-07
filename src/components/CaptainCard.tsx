@@ -23,89 +23,81 @@ export const CaptainCard: React.FC<CaptainCardProps> = ({
   };
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-amber-500/40 bg-gradient-to-br from-amber-950/30 via-zinc-950/80 to-[#121008] p-5 lg:p-6 backdrop-blur-xl shadow-[0_0_30px_rgba(245,158,11,0.12)]">
-      {/* Golden spotlight radial background */}
-      <div className="absolute -top-24 -right-24 w-60 h-60 rounded-full bg-amber-500/10 blur-3xl pointer-events-none"></div>
+    <div className="relative overflow-hidden rounded-3xl border border-[#23252a] bg-[#0d0e10] text-[#ffffff] p-6 sm:p-8 shadow-[0_16px_50px_-10px_rgba(0,0,0,0.25)]">
+      {/* Background Lime Glow */}
+      <div className="absolute top-0 right-0 w-80 h-80 bg-[#d4ff3a]/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20"></div>
 
-      <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         
-        {/* Left: Captain Banner & Profile */}
-        <div className="flex items-center gap-4 sm:gap-5">
-          {/* Avatar with Gold Crown Ring */}
-          <div className="relative group">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-600 to-yellow-700 p-[2px] shadow-[0_0_20px_rgba(245,158,11,0.35)]">
-              <div className="w-full h-full rounded-[14px] bg-zinc-950 flex items-center justify-center font-heading text-2xl sm:text-3xl font-black text-amber-300">
+        {/* Left: Captain Profile */}
+        <div className="flex items-center gap-5">
+          {/* Avatar with Lime Ring */}
+          <div className="relative">
+            <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-[#d4ff3a] to-[#a1c914] p-0.5 shadow-[0_0_25px_rgba(212,255,58,0.3)]">
+              <div className="w-full h-full rounded-[14px] bg-[#0d0e10] flex items-center justify-center font-heading text-2xl sm:text-3xl font-black text-[#d4ff3a]">
                 {captain ? captain.name.substring(0, 2).toUpperCase() : '??'}
               </div>
             </div>
-            {/* Crown on top */}
-            <div className="absolute -top-3 -right-2 bg-gradient-to-r from-amber-400 to-yellow-500 text-black p-1.5 rounded-full shadow-lg ring-2 ring-zinc-950">
-              <Crown className="w-4 h-4 fill-black" />
+            {/* Crown Pill */}
+            <div className="absolute -top-2.5 -right-2.5 bg-[#d4ff3a] text-[#0d0e10] p-1.5 rounded-full shadow-md">
+              <Crown className="w-4 h-4 fill-[#0d0e10]" />
             </div>
           </div>
 
           <div>
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-[11px] font-bold tracking-widest uppercase">
-                <Sparkles className="w-3 h-3 text-amber-400" />
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#d4ff3a] text-[#0d0e10] text-[10px] font-black uppercase tracking-wider">
+                <Sparkles className="w-3 h-3" />
                 REIGNING HOUSE CAPTAIN
               </span>
-              <span className="text-xs font-mono text-zinc-400 hidden sm:inline">
+              <span className="text-xs font-mono text-[#a0a299]">
                 WEEK 3 COMMAND
               </span>
             </div>
 
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white mt-1 tracking-tight flex items-center gap-2">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white mt-1.5 tracking-tight flex items-center gap-2.5">
               {captain ? captain.name : 'VACANT POSITION'}
               {captain && (
-                <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-zinc-800 text-zinc-300 border border-zinc-700 font-mono">
+                <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#1c1f24] text-[#a0a299] border border-[#2b2e35] font-mono">
                   Team {captain.team}
                 </span>
               )}
             </h2>
 
-            <p className="text-xs sm:text-sm text-zinc-400 mt-1 max-w-md">
-              {captain?.bio || 'The Captain enjoys complete immunity from weekly nominations and holds decisive power in house disputes.'}
+            <p className="text-xs sm:text-sm text-[#a0a299] mt-1 max-w-lg leading-relaxed">
+              {captain?.bio || 'The Captain commands executive privileges, immunity from weekly eviction, and decisive veto power in house deliberations.'}
             </p>
           </div>
         </div>
 
-        {/* Center: Captain Perks */}
-        <div className="hidden xl:flex items-center gap-3">
-          <div className="px-3.5 py-2.5 rounded-xl bg-zinc-900/80 border border-amber-500/20 text-xs flex items-center gap-2.5">
-            <Shield className="w-4 h-4 text-cyan-400 shrink-0" />
-            <div>
-              <div className="font-bold text-white uppercase text-[10px] tracking-wider">Immunity Shield</div>
-              <div className="text-zinc-400 text-[11px]">Protected from eviction</div>
-            </div>
+        {/* Center: Privileges Pills */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          <div className="px-4 py-2 rounded-full bg-[#16181c] border border-[#2b2e35] text-xs flex items-center gap-2 text-[#ffffff]">
+            <Shield className="w-3.5 h-3.5 text-[#d4ff3a]" />
+            <span className="font-semibold text-xs">Immunity Shield Active</span>
           </div>
 
-          <div className="px-3.5 py-2.5 rounded-xl bg-zinc-900/80 border border-amber-500/20 text-xs flex items-center gap-2.5">
-            <UserCheck className="w-4 h-4 text-amber-400 shrink-0" />
-            <div>
-              <div className="font-bold text-white uppercase text-[10px] tracking-wider">Captain Room</div>
-              <div className="text-zinc-400 text-[11px]">Luxury suite privileges</div>
-            </div>
+          <div className="px-4 py-2 rounded-full bg-[#16181c] border border-[#2b2e35] text-xs flex items-center gap-2 text-[#ffffff]">
+            <UserCheck className="w-3.5 h-3.5 text-[#d4ff3a]" />
+            <span className="font-semibold text-xs">Captain Suite & Veto Power</span>
           </div>
         </div>
 
-        {/* Right: Change Captain Action */}
-        <div className="relative w-full md:w-auto">
+        {/* Right: Change Captain Button & Dropdown */}
+        <div className="relative">
           <button
             onClick={() => setIsSelecting(!isSelecting)}
-            aria-expanded={isSelecting}
-            aria-label="Change House Captain"
-            className="w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 hover:from-amber-400 to-yellow-600 text-black font-bold text-sm tracking-wide shadow-[0_0_20px_rgba(245,158,11,0.25)] hover:shadow-[0_0_25px_rgba(245,158,11,0.4)] transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
+            className="w-full sm:w-auto framer-lime-btn px-6 py-3 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg"
           >
-            <Crown className="w-4 h-4 fill-black" />
-            <span>CHANGE CAPTAIN</span>
+            <Crown className="w-4 h-4 fill-[#0d0e10]" />
+            <span>APPOINT CAPTAIN</span>
             <ChevronDown className={`w-4 h-4 transition-transform ${isSelecting ? 'rotate-180' : ''}`} />
           </button>
 
-          {/* Captain Dropdown Menu (Only active contestants) */}
+          {/* Selector Dropdown */}
           {isSelecting && (
-            <div className="absolute right-0 top-full mt-2 w-72 max-h-72 overflow-y-auto rounded-xl bg-zinc-900 border border-amber-500/40 shadow-2xl p-2 z-50 divide-y divide-zinc-800/80 backdrop-blur-xl animate-in fade-in zoom-in-95 duration-150">
-              <div className="px-3 py-2 text-[11px] font-bold tracking-wider text-amber-400 uppercase">
+            <div className="absolute right-0 top-full mt-2 w-72 max-h-72 overflow-y-auto rounded-3xl bg-[#16181c] border border-[#2b2e35] shadow-2xl p-2 z-50 divide-y divide-[#23252a] animate-in fade-in zoom-in-95 duration-150">
+              <div className="px-3 py-2 text-[10px] font-mono font-bold tracking-wider text-[#d4ff3a] uppercase">
                 Select Active Housemate
               </div>
               <div className="pt-1 space-y-1">
@@ -116,21 +108,21 @@ export const CaptainCard: React.FC<CaptainCardProps> = ({
                       key={c.id}
                       onClick={() => handleSelect(c.id)}
                       disabled={isCurrent}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-left transition-colors ${
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-2xl text-xs font-medium text-left transition-colors ${
                         isCurrent
-                          ? 'bg-amber-500/20 text-amber-300 cursor-default'
-                          : 'text-zinc-300 hover:bg-zinc-800 hover:text-white'
-                      } focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none`}
+                          ? 'bg-[#d4ff3a]/20 text-[#d4ff3a] cursor-default'
+                          : 'text-[#e0e2d8] hover:bg-[#23252a] hover:text-white'
+                      }`}
                     >
-                      <div className="flex items-center gap-2.5">
+                      <div className="flex items-center gap-2">
                         <span className="font-bold text-sm">{c.name}</span>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#0d0e10] text-[#a0a299]">
                           {c.team}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-zinc-400">{c.points} pts</span>
-                        {isCurrent && <Check className="w-3.5 h-3.5 text-amber-400" />}
+                        <span className="font-mono text-[#a0a299]">{c.points} pts</span>
+                        {isCurrent && <Check className="w-3.5 h-3.5 text-[#d4ff3a]" />}
                       </div>
                     </button>
                   );

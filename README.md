@@ -1,138 +1,131 @@
-# BIG BOSS — HOUSE COMMAND CENTER
+# Big Boss — House Command Center
 
-> **Enterprise-grade, real-time command dashboard for Big Boss house operations, surveillance, and automated scoring.**
-
----
-
-## 📌 Overview
-
-**BIG BOSS: HOUSE COMMAND CENTER** is a mission-critical web application built for the executive producers and controllers of the Big Boss reality house. Engineered with high-performance React 19, TypeScript, Vite, Tailwind CSS v4, and Lucide React, it manages contestant telemetry, nominations, immunity shields, luxury tasks, broadcast announcements, countdown challenges, and permanent evictions with immediate real-time state synchronization and persistent `localStorage` storage.
+An executive, real-time surveillance and mission control dashboard for the Big Boss House. Built with high-performance React 19, TypeScript, and Vite, featuring a responsive sci-fi dark command center aesthetic with real-time telemetric updates, sound synthesis, and state persistence.
 
 ---
 
 ## 🚀 Tech Stack
 
-- **Framework**: React 19 (`react`, `react-dom`)
-- **Language**: TypeScript (`tsc -b`)
-- **Bundler & Dev Server**: Vite 8
-- **Styling**: Tailwind CSS v4 (`@tailwindcss/vite`)
-- **Icons**: Lucide React
-- **Linter**: Oxlint (0 errors, 0 warnings)
-- **Audio Engine**: Web Audio API (Synthesized command room SFX, zero external audio asset dependencies)
-- **Persistence**: Browser `localStorage` with corrupted-state fallback mechanisms
+- **Framework**: [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
+- **Build Tool**: [Vite 8](https://vitejs.dev/)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/) + Custom Glassmorphism Design System
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Audio Engine**: Native Web Audio API synthesizer oscillators (`SoundEffects`)
+- **State Architecture**: Centralized Store (`src/store/houseStore.ts`) enforcing business rules, actions, and selectors
+- **Persistence**: Safe `localStorage` with corrupted-state recovery, end-timestamp timer accuracy, and zero-latency state synchronization
 
 ---
 
-## 🎯 12 Mandatory Features Implemented
+## 🌟 Feature Checklist (12 Mandatory Features)
 
-| # | Feature Name | Description & Implementation Details |
-|---|---|---|
-| **1** | **Contestant Management** | Complete dossiers for 10 realistic housemates (`Aarav`, `Ananya`, `Kabir`, `Meera`, `Rohan`, `Siya`, `Arjun`, `Kiara`, `Vivaan`, `Tara`). View switcher for **Card Grid** and **Control Room Table View**. Search and multi-criteria filters (Active, Nominated, Immune, Evicted, Team Tigers, Team Wolves). |
-| **2** | **Live Leaderboard** | Real-time standings sorted descending by points. **Top 3 highlighted** (Gold Crown for Rank 1, Silver for Rank 2, Bronze for Rank 3). Excludes evicted contestants and recalculates ranks instantly with stable tie resolution. |
-| **3** | **Task Management** | Issue and assign house challenges across categories (*Luxury Budget, Captaincy, Ration, Secret Mission, Discipline*). Completing tasks awards points **once**, updates completion timestamps, and permanently disables double-awarding. |
-| **4** | **Point System** | Rapid adjustment buttons (`+10`, `+25`, `+50`, `-10`, `-25`, `-50`) plus a Custom Point Modal. Validates and strictly rejects empty, zero, decimal, and non-numeric inputs. Supports negative total scores. |
-| **5** | **Captaincy Command** | Prominent luxury Gold Captain Card. Strictly enforces **one Captain at a time**. Awards immunity shield to the Captain. Evicting the Captain automatically vacates the position and logs the vacancy. |
-| **6** | **Nominations System** | Toggle house nominations on any active contestant with real-time danger badges. Automatically synchronizes with the Danger Zone and Leaderboard status badges. |
-| **7** | **Immunity Shielding** | Immune contestants **cannot** be nominated (triggers error toast and blocks action without modifying state). Granting immunity to an already-nominated contestant **immediately clears their nomination**. |
-| **8** | **Danger Zone** | Dedicated live monitoring module tracking all nominated contestants in danger of eviction. Includes fast un-nominate and direct eviction triggers, with an inactive empty state. |
-| **9** | **Big Boss Announcements** | Real-time broadcast system. Broadcasts decrees via top marquee banner with urgency levels (*Urgent Warning, General Order, Critical Penalty*) and logs entries in the live feed. |
-| **10** | **Task Countdown Timer** | High-precision digital timer with Start, Pause, and Reset controls. Presets for 1m, 2m, and 5m. Includes visual and audio warning beeps during the **final 10 seconds**. |
-| **11** | **House Statistics (KPIs)** | 6 live telemetry KPI cards: Active Contestants, Highest Scorer, Total House Points, Current Nominees, Immune Contestants, and Evicted Contestants. 100% computed from state. |
-| **12** | **Eviction Engine** | Dedicated Evict button with confirmation modal: *"Evict <Name>? This cannot be undone."* Instantly clears flags, removes from leaderboard and captaincy eligibility, updates KPIs, displays a dramatic eviction toast, locks all actions, and lists them in a dedicated **Evicted Panel**. |
+| # | Feature | Description & Implementation | Status |
+|:---:|:---|:---|:---:|
+| **1** | **Contestant Management** | 10 realistic housemates (`Aarav`, `Ananya`, `Kabir`, `Meera`, `Rohan`, `Siya`, `Arjun`, `Kiara`, `Vivaan`, `Tara`) with table/card layouts, search, team filters, and full dossier status badges. | **PASS** |
+| **2** | **Live Leaderboard** | Real-time auto-sorting by score. Only active housemates compete. Standard competition tie-ranking (ties receive identical rank number with stable ordering). Top 3 spotlight badges. | **PASS** |
+| **3** | **Task Management** | Create task with active-only assignee and positive reward. Filter tabs (All/Pending/Completed). "Mark Complete" awards points once (double-click lockout). Delete task. Assignee eviction automatically cancels pending tasks (dimmed). | **PASS** |
+| **4** | **Point System** | Instant adjustment buttons (+10, +25, +50, -10, -25, -50) and validated Custom Points modal (bounds 1–1,000 PTS, decimal rounding, empty/negative guards; negative totals allowed). | **PASS** |
+| **5** | **Captaincy** | Prominent House Captain showcase. Only one captain at a time. Captain holds permanent immunity and gold badge across the app. Dynamic captain replacement selector. | **PASS** |
+| **6** | **Nominations** | One-click nomination flagging with danger warnings, dynamic nominee counts, and Danger Zone synchronization. | **PASS** |
+| **7** | **Immunity Shield** | Immune contestants are shielded from eviction. Attempting to nominate an immune contestant displays an error toast and changes nothing. Granting immunity clears existing nomination. | **PASS** |
+| **8** | **Danger Zone** | Dedicated red-alert zone displaying all nominated contestants with initials/avatar, team, points, and counter badge. Quick actions: "Remove Nomination", "Evict", and "Clear All Nominations" with confirmation. Empty state when safe. | **PASS** |
+| **9** | **Big Boss Announcements** | Text input with 200-char limit and live character counter. 3 quick-select presets. Live feed. Full-width dramatic top-screen banner ("BIG BOSS SPEAKS") for 5 seconds on broadcast. | **PASS** |
+| **10** | **Task Mission Timer** | Duration inputs (minutes/seconds), Start, Pause, Reset. Monospace countdown with shrinking progress bar. Last 10s red pulse. At 00:00: auto-stop, "TIME'S UP" state, audio buzzer, and activity log. End-timestamp persistence survives refresh. | **PASS** |
+| **11** | **House Statistics (KPIs)** | 10 live telemetry metrics derived via selectors: Active Contestants, Highest Scorer, Lowest Scorer, Total Points, Current Nominees, Immune Contestants, Evicted Contestants, Tasks Completed, Tasks Pending, Current Captain. | **PASS** |
+| **12** | **Eviction Requirements** | Irrevocable eviction flow with confirmation modal ("Evict <Name>? This cannot be undone."). Instantly removes from leaderboard, clears captaincy, disables all actions, increments Evicted KPI, cancels pending tasks, and displays in separate EVICTED panel. | **PASS** |
 
 ---
 
-## 🛠️ Running Locally
+## 🛡️ Edge Cases Handled & Tested
+
+1. **Evicting Captain, Immune, Nominee, or Highest Scorer**:
+   - Evicting the Captain automatically vacates the Captaincy, sets status to "VACANT", removes them from dropdowns, and logs the vacancy.
+   - Evicting an immune contestant or nominee safely clears their immunity and nomination flags.
+   - Evicting the highest scorer automatically recalculates the leaderboard and promotes the next active highest scorer.
+   - Any pending tasks assigned to the evicted contestant are immediately set to "Cancelled" and shown dimmed.
+2. **Immunity Nomination Protection**:
+   - Attempting to nominate an immune contestant triggers an error toast (`"<Name> is IMMUNE and cannot be nominated!"`), plays an alert sound, and does not alter the contestant's state.
+3. **Nomination Clearing via Immunity**:
+   - Granting immunity to an already-nominated contestant instantly clears their nomination flag (`isNominated: false`).
+4. **Custom Point Input Hardening**:
+   - Validates for empty input, non-numeric strings, decimals (rounded to integer), zero, and values exceeding 1,000 PTS. Negative totals are supported.
+5. **Double-Click Lockout on Task Completion**:
+   - "Mark Complete" employs an immediate lockout ref and status check to ensure reward points are never awarded twice.
+6. **Corrupted & Mid-Timer Storage Resilience**:
+   - `TaskTimer` calculates `endTimestamp - Date.now()` upon refresh to resume countdown accurately.
+   - Corrupted or invalid `localStorage` JSON values are safely caught and fall back to seed data without crashing.
+7. **Leaderboard Ties**:
+   - Contestants tied on points share the same rank number (e.g. two leaders share #1), with stable secondary sorting by name.
+8. **Activity Log Memory Cap**:
+   - The activity feed is strictly capped at the latest 100 events (`.slice(0, 100)`).
+
+---
+
+## 💻 How to Run Locally
 
 ### Prerequisites
-- Node.js `v18+` or `v20+` or `v24+`
-- npm `v9+` or `v10+` or `v11+`
+- Node.js (version 18 or higher recommended)
+- npm or pnpm or yarn
 
 ### 1. Install Dependencies
 ```bash
 npm install
 ```
 
-### 2. Start the Development Server
+### 2. Run the Development Server
 ```bash
 npm run dev
 ```
-Open [http://localhost:5174/](http://localhost:5174/) (or the port specified in terminal) in your browser.
+Open your browser at `http://localhost:5173`.
 
 ### 3. Build for Production
 ```bash
 npm run build
 ```
-Generates a zero-error production bundle in the `dist/` directory.
+The production bundle will be generated in `dist/`.
 
-### 4. Run Linter
+### 4. Preview the Production Build
 ```bash
-npm run lint
+npm run preview
 ```
 
 ---
 
-## ⏱️ 2-Minute "How to Demo" Walkthrough
+## 🎯 2-Minute "How to Demo" Walkthrough
 
-1. **Observe Initial House Telemetry**:
-   - Check the **KPI Cards** at the top: Active Contestants, Highest Scorer, Total Points, Current Nominees, and Immune Contestants.
-   - Note the **Reigning Captain Card** highlighting **Aarav** in gold.
-2. **Test Point System**:
-   - On **Ananya's** card, click `+50`.
-   - Watch the **Live Leaderboard** instantly reorder in real time, moving Ananya up the ranks.
-   - Click `Custom...` on Kabir, select *Task Victory*, input `40`, and confirm to see custom points applied.
-3. **Test Captaincy Shift**:
-   - In the **House Captain Card**, open the *Change Captain* dropdown.
-   - Select **Ananya**. Observe the gold crown badge transfer, Aarav's captaincy removed, and the header updated.
-4. **Test Immunity vs. Nomination Constraint**:
-   - Locate **Rohan** (who holds an Immunity Shield).
-   - Click `Nominate` on Rohan. Notice the **error toast**: *"Nomination Blocked: Rohan holds Immunity and CANNOT be nominated!"*
-   - Locate a nominated contestant (e.g., **Kiara**) and click `Grant Immunity`. Notice her nomination is automatically cleared!
-5. **Test Task System & Timer**:
-   - Click `Complete & Award` on the *Endurance Ring* task. Notice points are awarded once, the task turns green, and the button disables.
-   - In the **Task Timer**, click `1M` and `START`. Listen to the audio cues and watch the pulse warning trigger at 10 seconds.
-6. **Test Eviction Decree (Feature #12)**:
-   - Click `Evict` on any active contestant (e.g., **Kiara**).
-   - The confirmation modal appears: *"Evict Kiara? This cannot be undone."*
-   - Click *Evict Contestant*.
-   - Watch the dramatic red eviction toast, observe Kiara disappear from the Leaderboard, see the **Danger Zone** count decrement, and find Kiara listed in the separate **Evicted Panel** with disabled controls.
-7. **Test LocalStorage Persistence**:
-   - Refresh your browser (`F5` or `Ctrl+R`). All points, evicted states, and activity logs remain intact!
-   - Click **Reset House** in the header to return the house to kickoff state.
+1. **House Overview & Statistics**:
+   - Inspect the **House Statistics** grid: all 10 KPIs are live (Active Contestants, Highest Scorer, Lowest Scorer, Total Points, Current Nominees, Immune, Evicted, Tasks Completed, Tasks Pending, Current Captain).
+2. **Point System & Leaderboard Reorder**:
+   - Click `+50` on Kabir's card. Notice his points jump to 170 and the Live Leaderboard immediately reorders.
+   - Click `Custom...` on Ananya's card, enter `60` with reason "Secret Task", and click `Confirm Decree`. Observe her rising to #1 with 205 PTS.
+3. **Danger Zone & Immunity Guard**:
+   - Attempt to nominate Rohan (who holds an IMMUNE badge): an error toast blocks the action: *"Rohan is IMMUNE and cannot be nominated for eviction!"*.
+   - Nominate Ananya: she enters the **DANGER ZONE** immediately with a counter badge of 1.
+   - In Danger Zone, click `Remove Nomination`: she is safely removed, or click `Save (Shield)` to grant immunity.
+   - Test `Clear All Nominations` with confirmation: all active nominations are cleared.
+4. **Task Management & Eviction Cancellation**:
+   - In **Task Management**, click `Create Task`, choose title "Night Watch", select active assignee "Vivaan", and reward 30 PTS.
+   - Double-click `Mark Complete (+30)` on a pending task: points are awarded exactly once and status moves to `Completed`.
+   - Evict a contestant with a pending task: notice their pending task immediately turns `Cancelled` and appears dimmed.
+5. **Big Boss Announcements & Top Banner**:
+   - Click one of the 3 presets or type a decree under 200 characters with the live counter.
+   - Click `Broadcast`: a full-width dramatic red/gold banner titled **BIG BOSS SPEAKS** appears across the top of the screen for 5 seconds (dismissible).
+6. **Task Mission Timer with End-Timestamp Persistence**:
+   - Set 2 minutes and click `START TIMER`.
+   - Refresh the page: the timer seamlessly continues ticking down accurately from the stored end timestamp.
+   - Let it reach the last 10 seconds: the timer turns red and pulses. At `00:00`, it triggers "TIME'S UP" and an alert sound.
+7. **Eviction Flow & Reset House**:
+   - Click `Evict` on any active contestant: the confirmation modal appears. Confirm eviction:
+     - Contestant is removed from Live Leaderboard.
+     - Appears in the dedicated greyed-out **EVICTED CONTESTANTS** section with a red badge.
+     - Actions are disabled.
+   - Click `RESET HOUSE` in the header: confirm prompt, and all 10 contestants return to active status with kickoff seed data.
 
 ---
 
-## ☁️ Deployment (Vercel Ready)
+## 🚀 Deployment to Vercel
 
-This application is ready for zero-configuration Vercel deployment:
+The project is fully pre-configured for Vercel deployment:
 - **Framework Preset**: Vite
 - **Build Command**: `npm run build`
 - **Output Directory**: `dist`
-- **Node.js Version**: 18.x or 20.x
 - **Environment Variables**: None required
-
----
-
-## 🐙 Git Commands to Initialize, Commit, and Push
-
-To publish this project to a new GitHub repository:
-
-```bash
-# 1. Initialize git repository
-git init
-
-# 2. Add all files to staging
-git add .
-
-# 3. Commit the changes
-git commit -m "feat: complete Big Boss House Command Center with all 12 mandatory features"
-
-# 4. Rename default branch to main
-git branch -M main
-
-# 5. Add remote GitHub repository (replace with your repo URL)
-git remote add origin https://github.com/YOUR_USERNAME/big-boss-command-center.git
-
-# 6. Push to GitHub
-git push -u origin main
-```
